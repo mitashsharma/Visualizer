@@ -120,25 +120,84 @@ def generate_summary(eda_results, ml_results=None):
             "No potential numerical outliers were detected."
         )
 
-    # ML Results
+        # ML Results
     if ml_results:
+        if not isinstance(ml_results, dict):
+            raise TypeError("ML results must be a dictionary.")
+
+        problem_type = ml_results.get("problem_type")
+        target_column = ml_results.get("target_column")
+        metrics = ml_results.get("metrics", {})
+        train_rows = ml_results.get("train_rows")
+        test_rows = ml_results.get("test_rows")
+
         summary["ml_results"].append(
             "Machine learning analysis was performed on the dataset."
         )
 
-        if isinstance(ml_results, dict):
-            problem_type = ml_results.get("problem_type")
+        if problem_type:
+            summary["ml_results"].append(
+                f"Problem type detected: {problem_type}."
+            )
 
-            if problem_type:
-                summary["ml_results"].append(
-                    f"Problem type detected: {problem_type}."
-                )
+        if target_column:
+            summary["ml_results"].append(
+                f"Target column: {target_column}."
+            )
+
+        if train_rows is not None:
+            summary["ml_results"].append(
+                f"Training rows: {train_rows}."
+            )
+
+        if test_rows is not None:
+            summary["ml_results"].append(
+                f"Testing rows: {test_rows}."
+            )
+
+        if isinstance(metrics, dict):
+
+            # Classification
+            if problem_type == "classification":
+                accuracy = metrics.get("accuracy")
+
+                if accuracy is not None:
+                    summary["ml_results"].append(
+                        f"Classification accuracy: "
+                        f"{accuracy:.2%}."
+                    )
+
+            # Regression
+            elif problem_type == "regression":
+                mae = metrics.get("mae")
+                mse = metrics.get("mse")
+                rmse = metrics.get("rmse")
+                r2 = metrics.get("r2")
+
+                if mae is not None:
+                    summary["ml_results"].append(
+                        f"Mean Absolute Error (MAE): {mae:.4f}."
+                    )
+
+                if mse is not None:
+                    summary["ml_results"].append(
+                        f"Mean Squared Error (MSE): {mse:.4f}."
+                    )
+
+                if rmse is not None:
+                    summary["ml_results"].append(
+                        f"Root Mean Squared Error (RMSE): {rmse:.4f}."
+                    )
+
+                if r2 is not None:
+                    summary["ml_results"].append(
+                        f"R² score: {r2:.4f}."
+                    )
 
     else:
         summary["ml_results"].append(
             "No machine learning results are currently available."
         )
-
     # Recommendations
     if missing_values > 0:
         summary["recommendations"].append(

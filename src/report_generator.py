@@ -14,10 +14,14 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
+    Image,
 )
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
+import base64
 
+from reportlab.platypus import Image
 
 def _format_value(value):
     """Convert values into readable text."""
@@ -30,6 +34,31 @@ def _format_value(value):
 
     return str(value)
 
+def _figure_to_png_bytes(figure):
+    """Convert a Matplotlib figure into PNG bytes."""
+
+    buffer = BytesIO()
+
+    figure.savefig(
+        buffer,
+        format="png",
+        bbox_inches="tight"
+    )
+
+    buffer.seek(0)
+
+    return buffer
+
+def _figure_to_base64(figure):
+    """Convert a Matplotlib figure into a base64 PNG string."""
+
+    buffer = _figure_to_png_bytes(figure)
+
+    encoded = base64.b64encode(
+        buffer.getvalue()
+    ).decode("utf-8")
+
+    return encoded
 
 def generate_html_report(
     output_path,
@@ -200,20 +229,46 @@ def generate_html_report(
 
         sections.append("</div>")
 
-    # Visualizations
+     # Visualizations
     if visualizations:
         sections.append("<div class='section'>")
         sections.append("<h2>Visualizations</h2>")
-        sections.append("<ul>")
 
-        for visualization in visualizations:
-            sections.append(
-                f"<li>{escape(str(visualization))}</li>"
-            )
+        for name, visualization in visualizations.items():
 
-        sections.append("</ul>")
+            if isinstance(visualization, dict):
+                for item_name, figure in visualization.items():
+                    image_data = _figure_to_base64(figure)
+
+                    sections.append(
+                        f"<h3>{escape(str(name))}: "
+                        f"{escape(str(item_name))}</h3>"
+                    )
+
+                    sections.append(
+                        f"<img src='data:image/png;base64,"
+                        f"{image_data}' "
+                        f"style='max-width:100%; "
+                        f"height:auto;'>"
+                    )
+
+            else:
+                image_data = _figure_to_base64(
+                    visualization
+                )
+
+                sections.append(
+                    f"<h3>{escape(str(name))}</h3>"
+                )
+
+                sections.append(
+                    f"<img src='data:image/png;base64,"
+                    f"{image_data}' "
+                    f"style='max-width:100%; "
+                    f"height:auto;'>"
+                )
+
         sections.append("</div>")
-
     # ML results
     if ml_results:
         sections.append("<div class='section'>")
@@ -444,15 +499,38 @@ def generate_pdf_report(
             )
         )
 
-        for visualization in visualizations:
-            story.append(
-                Paragraph(
-                    f"• {escape(str(visualization))}",
-                    styles["Normal"],
+        def add_figure(figure, title=None):
+            if title:
+                story.append(
+                    Paragraph(
+                        escape(str(title)),
+                        styles["Heading3"],
+                    )
                 )
+
+            image_buffer = _figure_to_png_bytes(figure)
+
+            image = Image(
+                image_buffer,
+                width=500,
+                height=310,
             )
 
-        story.append(Spacer(1, 10))
+            story.append(image)
+            story.append(Spacer(1, 12))
+
+        for name, visualization in visualizations.items():
+            if isinstance(visualization, dict):
+                for item_name, figure in visualization.items():
+                    add_figure(
+                        figure,
+                        f"{name}: {item_name}",
+                    )
+            else:
+                add_figure(
+                    visualization,
+                    name,
+                )
 
     add_dictionary_section(
         "Machine Learning Results",
