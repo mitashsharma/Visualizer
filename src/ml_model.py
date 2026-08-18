@@ -51,8 +51,9 @@ def detect_problem_type(dataframe, target_column):
     Automatically determine whether the problem is classification
     or regression.
 
-    Classification is selected for categorical targets or numeric
-    targets with a small number of unique values.
+    Categorical and boolean targets are classification.
+    Numeric targets are classified as regression when they contain
+    a sufficiently large proportion of unique values.
 
     Returns
     -------
@@ -61,8 +62,9 @@ def detect_problem_type(dataframe, target_column):
     """
     validate_data(dataframe, target_column)
 
-    target = dataframe[target_column]
+    target = dataframe[target_column].dropna()
 
+    # Explicit categorical / boolean targets
     if (
         pd.api.types.is_object_dtype(target)
         or pd.api.types.is_categorical_dtype(target)
@@ -70,14 +72,30 @@ def detect_problem_type(dataframe, target_column):
     ):
         return "classification"
 
+    # Numeric targets
     if pd.api.types.is_numeric_dtype(target):
         unique_values = target.nunique()
+        total_values = len(target)
 
-        if unique_values <= 10:
+        if total_values == 0:
+            raise ValueError("Target column contains no valid values.")
+
+        unique_ratio = unique_values / total_values
+
+        # Numeric targets with very few repeated values are
+        # usually classification targets.
+        #
+        # Example:
+        # 0, 1, 0, 1, 1, 0 -> classification
+        #
+        # But:
+        # 42, 51, 58, 64, 69, ... -> regression
+        if unique_values <= 10 and unique_ratio < 0.5:
             return "classification"
 
         return "regression"
 
+    # Fallback
     return "classification"
 
 
