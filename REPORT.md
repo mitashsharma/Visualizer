@@ -173,7 +173,7 @@ Flask (src/api.py, app.py)  ──► DatasetStore (session-scoped, TTL/LRU)
 Visualizer/
 ├── app.py
 ├── src/            (15 modules)
-├── static/         css/ (4), js/ (10), 6 HTML pages, favicon
+├── static/         css/ (4), js/ (9), 6 HTML pages, favicon
 ├── tests/          (11 modules, 170 tests)
 ├── benchmarks/     make_data.py, bench_original.py, bench_new.py, results
 ├── data/           sample_customers.csv (1,212 × 13)
