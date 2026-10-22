@@ -43,6 +43,7 @@ async function init() {
 
     populateTargets(options);
     renderHistory();
+    restoreLatestRun();
 
     if (options.default_target) {
       targetSelect.value = options.default_target;
@@ -313,6 +314,32 @@ function finishTraining(result, cached) {
   refreshHistory();
 }
 
+function showRecord(record, badge = "loaded") {
+  hide("run-idle");
+  hide("run-progress");
+  hide("run-error");
+  show("run-result");
+
+  document.getElementById("run-badge").textContent = badge;
+  document.getElementById("run-badge").className =
+    badge === "last run" ? "badge badge--brand" : "badge badge--neutral";
+  document.getElementById("run-sub").textContent = `${record.model_label} · target ${record.target}`;
+  renderResult(record);
+}
+
+/* A cached run should be visible immediately, not only after a click. */
+function restoreLatestRun() {
+  const latest = state.history[0];
+  if (!latest) return;
+  showRecord(latest, "last run");
+  document.querySelectorAll(".history-item").forEach((node) => {
+    node.classList.toggle(
+      "is-active",
+      node.dataset.created === String(latest.created_at || "")
+    );
+  });
+}
+
 function refreshHistory() {
   api
     .get(`/api/datasets/${state.dataset.id}/models`)
@@ -579,14 +606,7 @@ function renderHistory() {
     item.addEventListener("click", () => {
       const record = state.history.find((entry) => entry.created_at === item.dataset.created);
       if (!record) return;
-      hide("run-idle");
-      hide("run-progress");
-      hide("run-error");
-      show("run-result");
-      document.getElementById("run-badge").textContent = "loaded";
-      document.getElementById("run-badge").className = "badge badge--neutral";
-      document.getElementById("run-sub").textContent = `${record.model_label} · target ${record.target}`;
-      renderResult(record);
+      showRecord(record, "loaded");
       document.querySelectorAll(".history-item").forEach((node) => node.classList.remove("is-active"));
       item.classList.add("is-active");
     });
