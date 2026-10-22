@@ -177,4 +177,4 @@ case that previously crashed now completes in 1.3 s on a 50k sample.
 
 The full before/after table, file inventory, test results and limitations are
 in [`REPORT.md`](REPORT.md). Automated verification: `python -m pytest tests -q`
-→ 170 passed.
+→ 188 passed.

@@ -229,7 +229,7 @@ def main() -> None:
             "python": platform.python_version(),
             "runs": results,
         }
-        args.out.write_text(json.dumps(document, indent=2))
+        args.out.write_text(json.dumps(document, indent=2), encoding="utf-8")
         print(f"wrote {args.out}")
         return
 

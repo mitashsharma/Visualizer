@@ -121,7 +121,7 @@ def test_render_report_rejects_unknown_format(context):
 def test_write_html(context, tmp_path):
     path = write_html(context, tmp_path / "report.html", include_charts=False)
     assert (tmp_path / "report.html").exists()
-    assert "Data quality" in (tmp_path / "report.html").read_text()
+    assert "Data quality" in (tmp_path / "report.html").read_text(encoding="utf-8")
     assert str(path).endswith("report.html")
 
 

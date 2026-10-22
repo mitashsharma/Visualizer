@@ -9,7 +9,9 @@ import pytest
 
 STATIC = Path(__file__).resolve().parent.parent / "static"
 PAGES = sorted(STATIC.glob("*.html"))
-CSS = "\n".join(path.read_text() for path in sorted((STATIC / "css").glob("*.css")))
+CSS = "\n".join(
+    path.read_text(encoding="utf-8") for path in sorted((STATIC / "css").glob("*.css"))
+)
 
 
 def rule(selector: str) -> str:
@@ -33,7 +35,7 @@ def test_pages_exist():
 
 @pytest.mark.parametrize("page", PAGES, ids=lambda path: path.name)
 def test_linked_assets_resolve(page):
-    html = page.read_text()
+    html = page.read_text(encoding="utf-8")
 
     for href in re.findall(r'<link[^>]+href="(/static/[^"]+)"', html):
         assert (STATIC / href.removeprefix("/static/")).is_file(), href
@@ -44,9 +46,21 @@ def test_linked_assets_resolve(page):
 
 @pytest.mark.parametrize("page", PAGES, ids=lambda path: path.name)
 def test_shared_stylesheets_are_loaded(page):
-    html = page.read_text()
+    html = page.read_text(encoding="utf-8")
     for sheet in ("tokens.css", "layout.css", "components.css", "pages.css"):
         assert f"/static/css/{sheet}" in html, (page.name, sheet)
+
+
+def test_static_assets_are_utf8():
+    """Windows reads text as cp1252 by default, so assets must be valid UTF-8."""
+    suffixes = {".html", ".js", ".css", ".svg", ".json", ".md"}
+    files = [path for path in STATIC.rglob("*") if path.suffix in suffixes]
+
+    assert files
+    for path in files:
+        raw = path.read_bytes()
+        assert not raw.startswith(b"\xef\xbb\xbf"), f"{path.name} has a BOM"
+        raw.decode("utf-8")  # raises UnicodeDecodeError with the offending offset
 
 
 def test_model_option_box_is_a_block():
@@ -61,7 +75,7 @@ def test_charts_fill_their_host():
 
 
 def test_upload_accepts_every_supported_extension():
-    html = (STATIC / "index.html").read_text()
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
     accept = re.search(r'id="file-input"[^>]*accept="([^"]+)"', html)
     assert accept, "file input needs an accept list"
     for extension in (".csv", ".tsv", ".txt", ".xlsx", ".xls"):
@@ -71,5 +85,5 @@ def test_upload_accepts_every_supported_extension():
 def test_uploads_are_not_written_to_disk():
     """The uploader must stay in-memory: no temp-file or open() writes."""
     for path in (Path(__file__).resolve().parent.parent / "src").glob("*.py"):
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         assert "tempfile" not in source, path.name

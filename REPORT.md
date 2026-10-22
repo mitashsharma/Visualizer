@@ -130,7 +130,8 @@ re-render on resize/theme changes; no chart library is loaded.
 
 ## Stage 6 — Verification
 
-* **170 pytest tests** across 11 modules; all pass in ~10 s.
+* **188 pytest tests** across 12 modules; all pass in ~10 s, on Linux and
+  under a simulated Windows cp1252 locale.
 * API matrix: pages, upload (CSV/TSV/XLSX), invalid types, empty files, charts,
   cleaning preview/apply/restore, target analysis, training jobs, caching,
   insights, HTML/PDF reports, CSV export, session isolation, 404s.
@@ -287,7 +288,7 @@ accuracy 0.8422 and AUC 0.8677 versus a 0.6749 majority-class baseline.
 
 ## 8. Tests and limitations
 
-**Automated:** `python -m pytest tests -q` → **170 passed in ~10 s**.
+**Automated:** `python -m pytest tests -q` → **188 passed in ~10 s**.
 Coverage: loader (formats, encodings, caps, dtypes, leading zeros), cleaning
 strategies and validation, profiling and identifier detection, curated charts
 and builder validation, EDA payloads, ML tasks/metrics/importance/sampling/

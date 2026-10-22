@@ -144,3 +144,6 @@ baseline (`benchmarks/results_baseline.json`) and the before/after comparison.
   synthesised; undersized or single-class targets are rejected with a message.
 - The service keeps state in memory per session. It is a single-process tool, not
   a multi-user deployment; run it behind a real server and store for that.
+- Windows is supported. Static assets are UTF-8 and every file read in the test
+  suite pins `encoding="utf-8"`, so tests do not depend on the cp1252 locale
+  default.
