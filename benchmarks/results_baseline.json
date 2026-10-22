@@ -1,0 +1,107 @@
+{
+  "implementation": "original (48a6480)",
+  "python": "3.11.2",
+  "pandas": "2.3.3",
+  "runs": [
+    {
+      "rows": 20000,
+      "stages": {
+        "load_csv": {
+          "seconds": 0.03
+        },
+        "clean": {
+          "seconds": 0.045
+        },
+        "eda": {
+          "seconds": 0.081
+        },
+        "charts": {
+          "seconds": 23.846,
+          "figure_count": 36
+        }
+      },
+      "rss_mb": {
+        "load_csv": {
+          "before": 97.3,
+          "after": 104.2
+        },
+        "clean": {
+          "before": 104.2,
+          "after": 112.3
+        },
+        "eda": {
+          "before": 112.3,
+          "after": 112.9
+        },
+        "charts": {
+          "before": 112.9,
+          "after": 763.7
+        }
+      },
+      "time_to_first_useful_view_s": 24.002,
+      "peak_rss_mb": 763.7,
+      "status": "ok",
+      "wall_seconds": 26.8
+    },
+    {
+      "rows": 100000,
+      "stages": {
+        "load_csv": {
+          "seconds": 0.133
+        },
+        "clean": {
+          "seconds": 0.192
+        },
+        "eda": {
+          "seconds": 0.322
+        },
+        "charts": {
+          "seconds": 112.888,
+          "figure_count": 36
+        }
+      },
+      "rss_mb": {
+        "load_csv": {
+          "before": 97.6,
+          "after": 130.1
+        },
+        "clean": {
+          "before": 130.1,
+          "after": 162.0
+        },
+        "eda": {
+          "before": 162.0,
+          "after": 162.8
+        },
+        "charts": {
+          "before": 162.8,
+          "after": 3243.5
+        }
+      },
+      "time_to_first_useful_view_s": 113.535,
+      "peak_rss_mb": 3243.5,
+      "status": "ok",
+      "wall_seconds": 124.27
+    }
+  ],
+  "ml": [
+    {
+      "rows": 2000,
+      "seconds": 1.031,
+      "train_rows": 1600,
+      "accuracy": 0.97,
+      "feature_count": 2579,
+      "peak_rss_mb": 214.7,
+      "status": "ok"
+    },
+    {
+      "rows": 20000,
+      "seconds": 137.388,
+      "train_rows": 16000,
+      "accuracy": 0.9978,
+      "feature_count": 17026,
+      "peak_rss_mb": 3312.7,
+      "status": "ok"
+    }
+  ]
+}

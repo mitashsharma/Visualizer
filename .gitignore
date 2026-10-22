@@ -20,3 +20,10 @@ tests/test.txt
 Thumbs.db
 __pycache__/
 *.pyc
+
+# Generated benchmark datasets (recreate with benchmarks/make_data.py)
+benchmarks/data/
+benchmarks/*.tmp
+
+# Report output
+reports/

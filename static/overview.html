@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Overview · AI Data Visualizer</title>
+  <meta name="description" content="Dataset overview: size, data types, missing values, duplicates, quality flags and a preview.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("aiviz-theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch (error) { /* storage can be disabled */ }
+    })();
+  </script>
+</head>
+<body data-page="overview">
+  <main class="main">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <div class="page-head__eyebrow">Step 02 · Dataset overview</div>
+          <h1 id="dataset-name">Loading dataset…</h1>
+          <p class="page-head__sub" id="dataset-sub">Profiling columns and checking data quality.</p>
+          <div class="row mt-12" id="dataset-badges"></div>
+        </div>
+        <div class="page-head__actions">
+          <button class="btn" id="download-button" type="button" disabled>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Download CSV
+          </button>
+          <button class="btn" id="restore-button" type="button" hidden>Reset to original</button>
+          <a class="btn btn--primary" href="/prepare">
+            Clean data
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid--4 section" id="kpis">
+        <div class="kpi"><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div></div>
+        <div class="kpi"><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div></div>
+        <div class="kpi"><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div></div>
+        <div class="kpi"><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div></div>
+      </div>
+
+      <div class="grid grid--sidebar section">
+        <div class="stack">
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Data health</div>
+                <div class="card__sub">What the profile found before any cleaning.</div>
+              </div>
+              <span class="badge badge--neutral" id="issue-count">—</span>
+            </div>
+            <div class="card__body" id="health-body">
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Automated findings</div>
+                <div class="card__sub">Computed from distributions, correlations and quality checks.</div>
+              </div>
+              <a class="btn btn--sm" href="/insights">Full insights</a>
+            </div>
+            <div class="card__body" id="findings-body">
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Schema &amp; preview</div>
+                <div class="card__sub" id="table-sub">Column-level statistics and raw rows.</div>
+              </div>
+              <div class="tabs" id="table-tabs" role="tablist">
+                <button class="tab is-active" data-tab="columns" role="tab" aria-selected="true" type="button">Columns</button>
+                <button class="tab" data-tab="preview" role="tab" aria-selected="false" type="button">Preview</button>
+              </div>
+            </div>
+            <div id="table-area">
+              <div class="card__body"><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="card">
+            <div class="card__head"><div class="card__title">Column composition</div></div>
+            <div class="card__body">
+              <div class="composition" id="composition">
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head"><div class="card__title">Next step</div></div>
+            <div class="card__body">
+              <p class="hint" id="next-step-text">Review the flagged issues, then apply cleaning in one controlled step.</p>
+              <a class="btn btn--primary btn--block mt-16" href="/prepare">Build a cleaning plan</a>
+              <a class="btn btn--ghost btn--block mt-8" href="/explore">Explore charts first</a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/overview.js"></script>
+</body>
+</html>

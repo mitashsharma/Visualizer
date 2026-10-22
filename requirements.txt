@@ -1,9 +1,13 @@
-pandas
-numpy
-openpyxl
-scikit-learn
-matplotlib
-seaborn
-streamlit
-scipy
-reportlab
+# Core data stack
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.3
+openpyxl>=3.1          # .xlsx ingestion
+xlrd>=2.0              # legacy .xls ingestion
+
+# Web application
+flask>=3.0
+
+# Report rendering
+matplotlib>=3.7        # chart images inside PDF reports
+reportlab>=4.0         # PDF export

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model · AI Data Visualizer</title>
+  <meta name="description" content="Train a small, recommended set of models with background jobs, sampling and honest evaluation metrics.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("aiviz-theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch (error) { /* storage can be disabled */ }
+    })();
+  </script>
+</head>
+<body data-page="model">
+  <main class="main">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <div class="page-head__eyebrow">Step 05 · Machine learning</div>
+          <h1>Train a model, read the evidence.</h1>
+          <p class="page-head__sub">
+            Two recommended models, a single split and a held-out evaluation. Training runs in the
+            background — the page stays responsive and reports real stage progress.
+          </p>
+        </div>
+        <div class="page-head__actions">
+          <a class="btn" href="/explore">Back to charts</a>
+          <a class="btn btn--primary" href="/insights">Insights &amp; report</a>
+        </div>
+      </div>
+
+      <div class="model-grid">
+        <section class="card">
+          <div class="card__head">
+            <div>
+              <div class="card__title">Configuration</div>
+              <div class="card__sub">Choose what to predict; the rest is handled.</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <div class="field">
+              <label class="label" for="target-select">Target column</label>
+              <select class="select" id="target-select" disabled>
+                <option>Loading columns…</option>
+              </select>
+            </div>
+
+            <div class="target-summary mt-12" id="target-summary">
+              <span class="muted">Loading target analysis…</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field">
+              <span class="label">Model</span>
+              <div class="model-cards" id="model-cards">
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="label" for="row-limit">Training rows</label>
+                <select class="select" id="row-limit"></select>
+                <p class="hint">Larger is slower. Sampling is reported in the results.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="test-size">Test split</label>
+                <select class="select" id="test-size">
+                  <option value="0.2" selected>20%</option>
+                  <option value="0.25">25%</option>
+                  <option value="0.3">30%</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="btn btn--primary btn--block mt-16" id="train-button" type="button" disabled>
+              Train model
+            </button>
+            <p class="hint mt-8" id="train-hint">Select a target to begin.</p>
+          </div>
+        </section>
+
+        <div class="stack">
+          <section class="card training-panel" id="training-card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Run</div>
+                <div class="card__sub" id="run-sub">No model trained yet.</div>
+              </div>
+              <span class="badge badge--neutral" id="run-badge">idle</span>
+            </div>
+            <div class="card__body" id="run-body">
+              <div id="run-idle">
+                <div class="empty">
+                  <div class="empty__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
+                  </div>
+                  <div class="empty__title">Nothing trained yet</div>
+                  <p class="empty__text">Pick a target column, choose one of the recommended models and start training. Results appear here with metrics, a baseline and feature importance.</p>
+                </div>
+              </div>
+
+              <div id="run-progress" class="hidden">
+                <div class="training-stage">
+                  <span class="spinner"></span>
+                  <span id="progress-stage">Preparing…</span>
+                </div>
+                <div class="progress mt-12"><div class="progress__bar" id="progress-bar"></div></div>
+                <div class="training-meta">
+                  <span id="progress-percent">0%</span>
+                  <span id="progress-elapsed">0.0s elapsed</span>
+                  <span id="progress-message"></span>
+                </div>
+                <div class="training-steps" id="training-steps"></div>
+              </div>
+
+              <div id="run-result" class="hidden"></div>
+              <div id="run-error" class="hidden"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Run history</div>
+                <div class="card__sub">Results cached for this dataset revision.</div>
+              </div>
+              <span class="badge badge--neutral" id="history-count">0</span>
+            </div>
+            <div id="history-body">
+              <div class="empty"><div class="empty__text">No runs yet.</div></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/model.js"></script>
+</body>
+</html>

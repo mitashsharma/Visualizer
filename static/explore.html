@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Explore · AI Data Visualizer</title>
+  <meta name="description" content="A small, curated set of charts chosen from your data, plus a manual chart builder.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("aiviz-theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch (error) { /* storage can be disabled */ }
+    })();
+  </script>
+</head>
+<body data-page="explore">
+  <main class="main">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <div class="page-head__eyebrow">Step 04 · Explore</div>
+          <h1>Fewer charts, better questions.</h1>
+          <p class="page-head__sub">
+            These charts are selected from your column types and distributions — no chart per column,
+            no scatter for every pair. Build your own chart if you need something specific.
+          </p>
+        </div>
+        <div class="page-head__actions">
+          <div class="tabs" id="view-tabs" role="tablist">
+            <button class="tab is-active" data-view="suggested" role="tab" aria-selected="true" type="button">Suggested</button>
+            <button class="tab" data-view="builder" role="tab" aria-selected="false" type="button">Chart builder</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="suggested-view">
+        <div class="section__head">
+          <div class="row">
+            <span class="badge badge--brand" id="chart-count">—</span>
+            <span class="section__hint" id="chart-hint">Chosen from the current revision.</span>
+          </div>
+          <a class="btn btn--sm" href="/model">Next: train a model</a>
+        </div>
+        <div class="chart-grid" id="chart-grid">
+          <div class="chart-card"><div class="chart-card__body"><div class="skeleton skeleton--chart"></div></div></div>
+          <div class="chart-card"><div class="chart-card__body"><div class="skeleton skeleton--chart"></div></div></div>
+        </div>
+      </div>
+
+      <div id="builder-view" class="hidden">
+        <div class="builder">
+          <section class="card card--pad">
+            <div class="builder__form">
+              <div class="field">
+                <label class="label" for="chart-type">Chart type</label>
+                <select class="select" id="chart-type"></select>
+                <p class="hint" id="chart-type-hint"></p>
+              </div>
+              <div class="field">
+                <label class="label" for="chart-x">X axis / category</label>
+                <select class="select" id="chart-x"></select>
+              </div>
+              <div class="field" id="chart-y-field">
+                <label class="label" for="chart-y">Y axis</label>
+                <select class="select" id="chart-y"></select>
+              </div>
+              <div class="field" id="chart-topn-field">
+                <label class="label" for="chart-topn">Categories shown</label>
+                <select class="select" id="chart-topn">
+                  <option value="6">6 + Other</option>
+                  <option value="10" selected>10 + Other</option>
+                  <option value="15">15 + Other</option>
+                  <option value="20">20 + Other</option>
+                </select>
+              </div>
+              <div class="field" id="chart-bins-field">
+                <label class="label" for="chart-bins">Histogram bins</label>
+                <select class="select" id="chart-bins">
+                  <option value="12">12</option>
+                  <option value="24" selected>24</option>
+                  <option value="40">40</option>
+                  <option value="60">60</option>
+                </select>
+              </div>
+              <button class="btn btn--primary btn--block" id="render-button" type="button">Render chart</button>
+              <p class="hint" id="builder-error" role="alert"></p>
+            </div>
+          </section>
+
+          <section class="builder__canvas" id="builder-canvas">
+            <div class="builder__placeholder" id="builder-placeholder">
+              <div>
+                <div style="font-weight:600;color:var(--ink-2);margin-bottom:4px">Pick a chart type and columns</div>
+                <div>Charts are aggregated on the server, so this stays fast even with large files.</div>
+              </div>
+            </div>
+            <div class="builder__chart hidden" id="builder-chart"></div>
+            <div class="builder__insight hidden" id="builder-insight"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/explore.js"></script>
+</body>
+</html>

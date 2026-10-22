@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prepare · AI Data Visualizer</title>
+  <meta name="description" content="Preview and apply a cleaning plan: duplicates, missing values, whitespace and unused columns.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("aiviz-theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch (error) { /* storage can be disabled */ }
+    })();
+  </script>
+</head>
+<body data-page="prepare">
+  <main class="main">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <div class="page-head__eyebrow">Step 03 · Prepare</div>
+          <h1>Clean the dataset, reversibly.</h1>
+          <p class="page-head__sub">
+            Nothing is applied until you confirm. Each run creates a new revision, so the original
+            file stays one click away.
+          </p>
+        </div>
+        <div class="page-head__actions">
+          <button class="btn" id="restore-button" type="button" hidden>Restore original</button>
+          <a class="btn" href="/overview">Back to overview</a>
+        </div>
+      </div>
+
+      <div id="revision-banner"></div>
+
+      <div class="grid grid--sidebar">
+        <div class="stack">
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Structural cleanup</div>
+                <div class="card__sub">Safe operations that do not invent values.</div>
+              </div>
+            </div>
+            <div class="card__body">
+              <div class="clean-actions">
+                <label class="check">
+                  <input type="checkbox" id="toggle-duplicates">
+                  <span class="check__box">
+                    <span class="check__mark"></span>
+                    <span>
+                      <span class="check__title" id="duplicates-title">Remove duplicate rows</span>
+                      <span class="hint" id="duplicates-hint">Detecting duplicates…</span>
+                    </span>
+                  </span>
+                </label>
+
+                <label class="check">
+                  <input type="checkbox" id="toggle-whitespace">
+                  <span class="check__box">
+                    <span class="check__mark"></span>
+                    <span>
+                      <span class="check__title" id="whitespace-title">Trim whitespace in text columns</span>
+                      <span class="hint" id="whitespace-hint">Leading and trailing spaces are removed.</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Missing values</div>
+                <div class="card__sub">Pick a strategy per column. “Leave as is” keeps the gaps.</div>
+              </div>
+              <span class="badge badge--neutral" id="missing-total">—</span>
+            </div>
+            <div id="missing-area">
+              <div class="card__body"><div class="skeleton skeleton--line"></div><div class="skeleton skeleton--line"></div></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Columns to drop</div>
+                <div class="card__sub">Constant or empty columns are suggested automatically.</div>
+              </div>
+            </div>
+            <div class="card__body">
+              <div class="drop-list" id="drop-list">
+                <div class="skeleton skeleton--line"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack sticky">
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Projected result</div>
+                <div class="card__sub">Live preview of the selected plan.</div>
+              </div>
+              <span class="badge badge--brand" id="projection-badge">Preview</span>
+            </div>
+            <div class="card__body">
+              <div class="projection" id="projection">
+                <div class="projection__item"><div class="projection__label">Rows</div><div class="projection__value">—</div></div>
+                <div class="projection__item"><div class="projection__label">Columns</div><div class="projection__value">—</div></div>
+                <div class="projection__item"><div class="projection__label">Missing</div><div class="projection__value">—</div></div>
+              </div>
+              <p class="hint mt-12" id="projection-note">Change an option to see the effect.</p>
+              <div class="divider"></div>
+              <div id="preview-area">
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+              </div>
+            </div>
+            <div class="card__foot">
+              <button class="btn btn--primary btn--block" id="apply-button" type="button" disabled>Apply cleaning</button>
+            </div>
+          </section>
+
+          <section class="card card--pad">
+            <div class="row" style="justify-content: space-between">
+              <div>
+                <div class="card__title" id="revision-title">Revision 1</div>
+                <div class="hint" id="revision-hint">Original upload</div>
+              </div>
+              <span class="badge badge--neutral" id="revision-badge">raw</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/prepare.js"></script>
+</body>
+</html>

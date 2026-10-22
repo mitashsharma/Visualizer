@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insights · AI Data Visualizer</title>
+  <meta name="description" content="Computed findings, next steps and a downloadable HTML or PDF report.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("aiviz-theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch (error) { /* storage can be disabled */ }
+    })();
+  </script>
+</head>
+<body data-page="insights">
+  <main class="main">
+    <div class="container">
+      <div class="page-head">
+        <div>
+          <div class="page-head__eyebrow">Step 06 · Insights &amp; export</div>
+          <h1>What the data says.</h1>
+          <p class="page-head__sub" id="dataset-sub">Findings are derived from computed statistics — every number can be traced back to the profile or the model.</p>
+        </div>
+        <div class="page-head__actions">
+          <a class="btn" href="/model">Back to model</a>
+        </div>
+      </div>
+
+      <div class="insights-grid">
+        <div class="stack">
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Summary</div>
+                <div class="card__sub" id="summary-meta">—</div>
+              </div>
+              <span class="badge badge--brand" id="revision-badge">—</span>
+            </div>
+            <div class="card__body" id="summary-body">
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line"></div>
+              <div class="skeleton skeleton--line"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Findings</div>
+                <div class="card__sub">Patterns worth a closer look.</div>
+              </div>
+            </div>
+            <div class="card__body">
+              <div class="findings" id="findings-body">
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" id="model-card" hidden>
+            <div class="card__head">
+              <div>
+                <div class="card__title">Model review</div>
+                <div class="card__sub">Latest trained model on this revision.</div>
+              </div>
+              <a class="btn btn--sm" href="/model">Open model</a>
+            </div>
+            <div class="card__body" id="model-body"></div>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="card">
+            <div class="card__head">
+              <div>
+                <div class="card__title">Recommended next steps</div>
+                <div class="card__sub">Ordered by impact on the analysis.</div>
+              </div>
+            </div>
+            <div class="card__body">
+              <div class="rec-list" id="rec-body">
+                <div class="skeleton skeleton--line"></div>
+                <div class="skeleton skeleton--line"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="report-card">
+            <h2>Export the analysis</h2>
+            <p>
+              A self-contained report with the executive summary, column dictionary, curated charts,
+              cleaning notes and model metrics. Generated on demand — no data leaves the server.
+            </p>
+            <div class="report-options">
+              <select class="select" id="report-format" aria-label="Report format">
+                <option value="html" selected>HTML report</option>
+                <option value="pdf">PDF report</option>
+              </select>
+              <button class="btn btn--primary" id="report-button" type="button">Download report</button>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="include-charts" checked>
+              <span class="switch__track"></span>
+              <span>Include charts</span>
+            </label>
+            <div class="divider" style="background: rgba(255,255,255,0.12)"></div>
+            <button class="btn btn--ghost btn--block" id="csv-button" type="button">Download prepared CSV</button>
+            <p class="small mt-12" id="report-note" style="color:#8b9ab5">Reports include up to four charts.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/insights.js"></script>
+</body>
+</html>

@@ -1,260 +1,217 @@
-"""
-eda.py
+"""Exploratory data analysis.
 
-Performs Exploratory Data Analysis (EDA) for the AI Data Visualizer.
+Thin, cached layer over :mod:`src.profile`. Every function accepts an optional
+pre-computed profile so callers can avoid re-scanning the DataFrame; this is
+what removes the duplicated overview/outlier passes in the original code.
+
+The public functions keep their original signatures and return types for
+backwards compatibility.
 """
 
+from __future__ import annotations
+
+import numpy as np
 import pandas as pd
 
+from src.profile import (
+    KIND_CATEGORICAL,
+    build_profile,
+    columns_by_name,
+    numeric_columns as profile_numeric_columns,
+)
 
-def validate_dataframe(dataframe):
-    """
-    Validate that the input is a pandas DataFrame.
-    """
+
+def validate_dataframe(dataframe: pd.DataFrame) -> bool:
     if not isinstance(dataframe, pd.DataFrame):
         raise TypeError("Input must be a pandas DataFrame.")
-
     if dataframe.empty:
         raise ValueError("DataFrame is empty.")
-
     return True
 
 
-def dataset_overview(dataframe):
-    """
-    Generate basic information about the dataset.
-
-    Returns
-    -------
-    dict
-        Dataset overview.
-    """
-    validate_dataframe(dataframe)
-
-    numerical_columns = dataframe.select_dtypes(
-        include="number"
-    ).columns.tolist()
-
-    categorical_columns = dataframe.select_dtypes(
-        include=["object", "category", "string"]
-    ).columns.tolist()
-
-    return {
-        "rows": dataframe.shape[0],
-        "columns": dataframe.shape[1],
-        "column_names": dataframe.columns.tolist(),
-        "numerical_columns": numerical_columns,
-        "categorical_columns": categorical_columns,
-        "missing_values": int(dataframe.isnull().sum().sum()),
-        "duplicate_rows": int(dataframe.duplicated().sum()),
-    }
-
-
-def numerical_statistics(dataframe):
-    """
-    Generate descriptive statistics for numerical columns.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Numerical statistics.
-    """
-    validate_dataframe(dataframe)
-
-    numerical_data = dataframe.select_dtypes(include="number")
-
-    if numerical_data.empty:
-        return pd.DataFrame()
-
-    return numerical_data.describe().transpose()
-
-
-def categorical_statistics(dataframe):
-    """
-    Generate basic statistics for categorical columns.
-
-    Returns
-    -------
-    dict
-        Unique values and most frequent values for each categorical column.
-    """
-    validate_dataframe(dataframe)
-
-    categorical_data = dataframe.select_dtypes(
-        include=["object", "category", "string"]
+def _overview_from_profile(profile: dict) -> dict:
+    overview = dict(profile["overview"])
+    overview.update(
+        {
+            "column_names": [column["name"] for column in profile["columns"]],
+            "numerical_columns": profile["kinds"]["numeric"],
+            "categorical_columns": profile["kinds"]["categorical"]
+            + profile["kinds"]["boolean"],
+            "datetime_columns": profile["kinds"]["datetime"],
+            "missing_values": overview["missing_cells"],
+        }
     )
+    return overview
+
+
+def dataset_overview(dataframe: pd.DataFrame, profile: dict | None = None) -> dict:
+    validate_dataframe(dataframe)
+    profile = profile or build_profile(dataframe)
+    return _overview_from_profile(profile)
+
+
+def numerical_statistics(dataframe: pd.DataFrame, profile: dict | None = None) -> pd.DataFrame:
+    validate_dataframe(dataframe)
+    profile = profile or build_profile(dataframe)
+
+    rows = []
+    for column in profile["columns"]:
+        if column["kind"] != "numeric" or not column["stats"]:
+            continue
+        stats = column["stats"]
+        rows.append(
+            {
+                "column": column["name"],
+                "count": stats.get("count"),
+                "mean": stats.get("mean"),
+                "std": stats.get("std"),
+                "min": stats.get("min"),
+                "q1": stats.get("q1"),
+                "median": stats.get("median"),
+                "q3": stats.get("q3"),
+                "max": stats.get("max"),
+                "outliers": stats.get("outliers"),
+            }
+        )
+
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).set_index("column")
+
+
+def categorical_statistics(dataframe: pd.DataFrame, profile: dict | None = None) -> dict:
+    validate_dataframe(dataframe)
+    profile = profile or build_profile(dataframe)
 
     statistics = {}
+    for column in profile["columns"]:
+        if column["kind"] not in (KIND_CATEGORICAL, "boolean"):
+            continue
 
-    for column in categorical_data.columns:
-        value_counts = categorical_data[column].value_counts(dropna=False)
-
-        statistics[column] = {
-            "unique_values": int(categorical_data[column].nunique()),
-            "most_frequent": (
-                value_counts.index[0]
-                if not value_counts.empty
-                else None
-            ),
-            "frequency": (
-                int(value_counts.iloc[0])
-                if not value_counts.empty
-                else 0
-            ),
-        }
+        if column["top_values"]:
+            top = column["top_values"][0]
+            statistics[column["name"]] = {
+                "unique_values": column["unique"],
+                "most_frequent": top["value"],
+                "frequency": top["count"],
+            }
+        else:
+            series = dataframe[column["name"]].dropna()
+            counts = series.value_counts()
+            statistics[column["name"]] = {
+                "unique_values": column["unique"],
+                "most_frequent": str(counts.index[0]) if not counts.empty else None,
+                "frequency": int(counts.iloc[0]) if not counts.empty else 0,
+            }
 
     return statistics
 
 
-def correlation_matrix(dataframe):
-    """
-    Calculate correlations between numerical columns.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Correlation matrix.
-    """
+def correlation_matrix(
+    dataframe: pd.DataFrame,
+    columns: list[str] | None = None,
+    *,
+    max_columns: int | None = None,
+) -> pd.DataFrame:
     validate_dataframe(dataframe)
 
-    numerical_data = dataframe.select_dtypes(include="number")
+    if columns is None:
+        columns = dataframe.select_dtypes(include="number").columns.tolist()
 
-    if numerical_data.shape[1] < 2:
+    selected = []
+    for name in columns:
+        if name not in dataframe.columns:
+            continue
+        if pd.api.types.is_numeric_dtype(dataframe[name]):
+            selected.append(name)
+
+    if max_columns:
+        selected = selected[:max_columns]
+
+    if len(selected) < 2:
         return pd.DataFrame()
 
-    return numerical_data.corr()
+    return dataframe[selected].corr(numeric_only=True)
 
 
-def detect_outliers(dataframe):
-    """
-    Detect outliers in numerical columns using the IQR method.
-
-    Returns
-    -------
-    dict
-        Number of outliers and boundaries for each numerical column.
-    """
-    validate_dataframe(dataframe)
-
-    numerical_data = dataframe.select_dtypes(include="number")
+def detect_outliers(dataframe: pd.DataFrame, profile: dict | None = None) -> dict:
+    if profile is None:
+        validate_dataframe(dataframe)
+        profile = build_profile(dataframe)
 
     results = {}
-
-    for column in numerical_data.columns:
-        series = numerical_data[column].dropna()
-
-        if series.empty:
-            results[column] = {
-                "outlier_count": 0,
-                "lower_bound": None,
-                "upper_bound": None,
-            }
+    for column in profile["columns"]:
+        if column["kind"] != "numeric":
             continue
-
-        q1 = series.quantile(0.25)
-        q3 = series.quantile(0.75)
-
-        iqr = q3 - q1
-
-        lower_bound = q1 - (1.5 * iqr)
-        upper_bound = q3 + (1.5 * iqr)
-
-        outliers = series[
-            (series < lower_bound) |
-            (series > upper_bound)
-        ]
-
-        results[column] = {
-            "outlier_count": int(len(outliers)),
-            "lower_bound": float(lower_bound),
-            "upper_bound": float(upper_bound),
+        stats = column["stats"]
+        results[column["name"]] = {
+            "outlier_count": int(stats.get("outliers", 0)),
+            "lower_bound": stats.get("lower_bound"),
+            "upper_bound": stats.get("upper_bound"),
         }
-
     return results
 
 
-def generate_insights(dataframe):
-    """
-    Generate basic automatic insights from the dataset.
-
-    Returns
-    -------
-    list
-        List of human-readable insights.
-    """
+def generate_insights(dataframe: pd.DataFrame, profile: dict | None = None) -> list[str]:
+    """Return human-readable findings (string list, for compatibility)."""
     validate_dataframe(dataframe)
+    from src.summarizer import build_insights
 
-    insights = []
-
-    overview = dataset_overview(dataframe)
-
-    insights.append(
-        f"The dataset contains {overview['rows']} rows "
-        f"and {overview['columns']} columns."
-    )
-
-    if overview["numerical_columns"]:
-        insights.append(
-            f"There are {len(overview['numerical_columns'])} "
-            "numerical columns."
-        )
-
-    if overview["categorical_columns"]:
-        insights.append(
-            f"There are {len(overview['categorical_columns'])} "
-            "categorical columns."
-        )
-
-    if overview["missing_values"] > 0:
-        insights.append(
-            f"The dataset contains {overview['missing_values']} "
-            "missing values."
-        )
-    else:
-        insights.append("The dataset contains no missing values.")
-
-    if overview["duplicate_rows"] > 0:
-        insights.append(
-            f"The dataset contains {overview['duplicate_rows']} "
-            "duplicate rows."
-        )
-    else:
-        insights.append("The dataset contains no duplicate rows.")
-
-    outlier_results = detect_outliers(dataframe)
-
-    total_outliers = sum(
-        result["outlier_count"]
-        for result in outlier_results.values()
-    )
-
-    if total_outliers > 0:
-        insights.append(
-            f"A total of {total_outliers} potential numerical "
-            "outliers were detected using the IQR method."
-        )
-    else:
-        insights.append("No potential numerical outliers were detected.")
-
-    return insights
+    profile = profile or build_profile(dataframe)
+    insights = build_insights(profile, dataframe)
+    messages = [insights["summary"]] if insights.get("summary") else []
+    messages += [finding["detail"] for finding in insights["findings"]]
+    return messages
 
 
-def perform_eda(dataframe):
-    """
-    Run the complete EDA process.
-
-    Returns
-    -------
-    dict
-        Complete EDA results.
-    """
+def perform_eda(dataframe: pd.DataFrame, profile: dict | None = None) -> dict:
+    """Run the classic EDA bundle with a single profile pass."""
     validate_dataframe(dataframe)
+    profile = profile or build_profile(dataframe)
 
     return {
-        "overview": dataset_overview(dataframe),
-        "numerical_statistics": numerical_statistics(dataframe),
-        "categorical_statistics": categorical_statistics(dataframe),
-        "correlation_matrix": correlation_matrix(dataframe),
-        "outliers": detect_outliers(dataframe),
-        "insights": generate_insights(dataframe),
+        "overview": _overview_from_profile(profile),
+        "numerical_statistics": numerical_statistics(dataframe, profile),
+        "categorical_statistics": categorical_statistics(dataframe, profile),
+        "correlation_matrix": correlation_matrix(
+            dataframe, profile_numeric_columns(profile, include_identifiers=True)
+        ),
+        "outliers": detect_outliers(dataframe, profile),
+        "insights": generate_insights(dataframe, profile),
+        "profile": profile,
     }
+
+
+def correlation_payload(dataframe: pd.DataFrame, columns: list[str]) -> dict:
+    """Correlation matrix as JSON-friendly lists (None for undefined pairs)."""
+    matrix = correlation_matrix(dataframe, columns)
+    if matrix.empty:
+        return {"columns": [], "values": []}
+
+    values = []
+    for row in matrix.to_numpy():
+        values.append(
+            [None if not np.isfinite(value) else round(float(value), 3) for value in row]
+        )
+
+    return {"columns": [str(name) for name in matrix.columns], "values": values}
+
+
+def outlier_payload(profile: dict) -> list[dict]:
+    payload = []
+    for column in profile["columns"]:
+        if column["kind"] != "numeric":
+            continue
+        stats = column["stats"]
+        count = int(stats.get("outliers", 0))
+        total = int(stats.get("count", 0) or 0)
+        payload.append(
+            {
+                "column": column["name"],
+                "outlier_count": count,
+                "lower_bound": stats.get("lower_bound"),
+                "upper_bound": stats.get("upper_bound"),
+                "share_pct": round(100 * count / total, 2) if total else 0.0,
+            }
+        )
+    return payload

@@ -1,0 +1,150 @@
+{
+  "implementation": "new (Flask API + curated charts)",
+  "python": "3.11.2",
+  "runs": [
+    {
+      "rows": 2000,
+      "stages": {
+        "upload_and_profile": {
+          "seconds": 0.048,
+          "rows": 2020,
+          "columns": 13
+        },
+        "overview_first": {
+          "seconds": 0.005,
+          "findings": 5
+        },
+        "charts_first": {
+          "seconds": 0.004,
+          "chart_count": 5
+        },
+        "first_view_total": {
+          "seconds": 0.057
+        },
+        "revisit_cached": {
+          "overview_seconds": 0.005,
+          "charts_seconds": 0.001,
+          "total_seconds": 0.006
+        },
+        "cleaning_preview": {
+          "seconds": 0.011,
+          "rows_after": 2000
+        },
+        "train": {
+          "seconds": 0.393,
+          "internal_seconds": 0.347,
+          "rows_used": 2020,
+          "sampled": false,
+          "accuracy": 0.9926,
+          "features": 10
+        },
+        "train_cached": {
+          "seconds": 0.005,
+          "cached": true
+        },
+        "report_html": {
+          "seconds": 1.008,
+          "bytes": 130970
+        }
+      },
+      "peak_rss_mb": 222.4,
+      "status": "ok"
+    },
+    {
+      "rows": 20000,
+      "stages": {
+        "upload_and_profile": {
+          "seconds": 0.137,
+          "rows": 20200,
+          "columns": 13
+        },
+        "overview_first": {
+          "seconds": 0.009,
+          "findings": 5
+        },
+        "charts_first": {
+          "seconds": 0.01,
+          "chart_count": 5
+        },
+        "first_view_total": {
+          "seconds": 0.156
+        },
+        "revisit_cached": {
+          "overview_seconds": 0.009,
+          "charts_seconds": 0.001,
+          "total_seconds": 0.01
+        },
+        "cleaning_preview": {
+          "seconds": 0.05,
+          "rows_after": 20000
+        },
+        "train": {
+          "seconds": 0.703,
+          "internal_seconds": 0.694,
+          "rows_used": 20200,
+          "sampled": false,
+          "accuracy": 0.9985,
+          "features": 10
+        },
+        "train_cached": {
+          "seconds": 0.005,
+          "cached": true
+        },
+        "report_html": {
+          "seconds": 0.986,
+          "bytes": 126427
+        }
+      },
+      "peak_rss_mb": 240.9,
+      "status": "ok"
+    },
+    {
+      "rows": 100000,
+      "stages": {
+        "upload_and_profile": {
+          "seconds": 0.561,
+          "rows": 101000,
+          "columns": 13
+        },
+        "overview_first": {
+          "seconds": 0.026,
+          "findings": 5
+        },
+        "charts_first": {
+          "seconds": 0.035,
+          "chart_count": 5
+        },
+        "first_view_total": {
+          "seconds": 0.622
+        },
+        "revisit_cached": {
+          "overview_seconds": 0.023,
+          "charts_seconds": 0.001,
+          "total_seconds": 0.024
+        },
+        "cleaning_preview": {
+          "seconds": 0.212,
+          "rows_after": 100000
+        },
+        "train": {
+          "seconds": 1.317,
+          "internal_seconds": 1.308,
+          "rows_used": 50000,
+          "sampled": true,
+          "accuracy": 0.9974,
+          "features": 10
+        },
+        "train_cached": {
+          "seconds": 0.007,
+          "cached": true
+        },
+        "report_html": {
+          "seconds": 1.08,
+          "bytes": 129841
+        }
+      },
+      "peak_rss_mb": 291.7,
+      "status": "ok"
+    }
+  ]
+}

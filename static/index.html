@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Upload dataset · AI Data Visualizer</title>
+  <meta name="description" content="Upload a CSV, TSV or Excel dataset and get a profiled, cleaned and visualised analysis with an honest model evaluation.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/tokens.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/pages.css">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("aiviz-theme");
+        if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+      } catch (error) { /* storage can be disabled */ }
+    })();
+  </script>
+</head>
+<body data-page="index">
+  <main class="main">
+    <div class="container">
+      <div id="resume-slot"></div>
+
+      <section class="upload">
+        <div class="upload__copy">
+          <span class="upload__eyebrow">Data intake · step 1</span>
+          <h1>Turn a spreadsheet into a clear analysis.</h1>
+          <p class="upload__lead">
+            Upload a CSV, TSV or Excel file. Get a profiled dataset, a controlled cleaning plan,
+            a focused set of charts and an honest model evaluation — without writing code.
+          </p>
+
+          <ul class="upload__points">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <span>One profile pass drives every statistic, chart and model.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <span>Cleaning is reversible — every action creates a new revision.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <span>Only a handful of high-value charts, chosen from your data.</span>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <span>Metrics with a baseline comparison, never a bare accuracy number.</span>
+            </li>
+          </ul>
+
+          <div class="steps-card">
+            <div class="step-card">
+              <div class="step-card__num">01</div>
+              <h3>Profile</h3>
+              <p>Types, missingness, duplicates and quality flags in one pass.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-card__num">02</div>
+              <h3>Analyse</h3>
+              <p>Curated charts and a correlation view — not a wall of graphs.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-card__num">03</div>
+              <h3>Model</h3>
+              <p>Two recommended models, background training and honest metrics.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="upload-card" id="upload-card">
+          <div class="upload-card__title">Upload your dataset</div>
+          <p class="upload-card__sub">CSV, TSV, TXT or Excel up to 100 MB. Files are parsed in memory and are not written to disk.</p>
+
+          <label class="dropzone" id="dropzone" for="file-input" tabindex="0" role="button" aria-label="Choose a CSV, TSV or Excel file">
+            <span class="dropzone__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 16V4m0 0L7 9m5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+              </svg>
+            </span>
+            <div class="dropzone__title">Drop a file here or <span>browse</span></div>
+            <div class="dropzone__meta">CSV · TSV · TXT · XLSX · up to 100 MB</div>
+          </label>
+          <input type="file" id="file-input" accept=".csv,.tsv,.tab,.txt,.xlsx,.xls,text/csv,text/tab-separated-values,text/plain" hidden>
+
+          <div class="upload-status" id="upload-status" aria-live="polite"></div>
+
+          <div class="upload-divider">or start without a file</div>
+
+          <button class="btn btn--block" id="sample-button" type="button">
+            Load the sample dataset
+          </button>
+          <p class="hint mt-12 centered">1,200 customer records with missing values and duplicate rows — ideal for a quick tour.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/static/js/upload.js"></script>
+</body>
+</html>
